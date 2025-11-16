@@ -2,26 +2,19 @@ import { useState } from 'react';
 import styles from './App.module.css';
 
 function App() {
-	const [isDisabled, setIsDisabled] = useState(true);
 	const [inputValue, setInputValue] = useState('');
-	const [error, setError] = useState(true);
+	const [error, setError] = useState('');
 	const [list, setList] = useState([]);
 	const onInputButtonClick = () => {
-		const promptValue = prompt('Введите значение') || '';
+		const promptValue = prompt('Введите значение');
+		if (promptValue === null) return;
 		const isValid = promptValue.length >= 3;
-		setError(isValid);
+		setError(isValid ? '' : 'Введенное значение должно содержать минимум 3 символа');
 		setInputValue(isValid ? promptValue : '');
-		setIsDisabled(!isValid);
 	};
 	const addToList = () => {
-		const elementList = (
-			<li key={Date.now()} className={styles['list-item']}>
-				{inputValue}
-			</li>
-		);
-		setList([...list, elementList]);
+		setList([...list, { id: Date.now(), value: inputValue }]);
 		setInputValue('');
-		setIsDisabled(true);
 	};
 
 	return (
@@ -32,18 +25,14 @@ function App() {
 					Текущее значение <code>value</code>: "
 					<output className={styles['current-value']}>{inputValue}</output>"
 				</p>
-				{!error && (
-					<div className={styles.error}>
-						Введенное значение должно содержать минимум 3 символа
-					</div>
-				)}
+				{error !== '' && <div className={styles.error}>{error}</div>}
 				<div className={styles['buttons-container']}>
 					<button className={styles.button} onClick={onInputButtonClick}>
 						Ввести новое
 					</button>
 					<button
 						className={styles.button}
-						disabled={isDisabled}
+						disabled={inputValue.length < 3}
 						onClick={addToList}
 					>
 						Добавить в список
@@ -56,8 +45,13 @@ function App() {
 							Нет добавленных элементов
 						</p>
 					)}
-					{/* <ul className={styles.list}>{list}</ul> */}
-					<ul className={styles.list}>{list.map((el) => el)}</ul>
+					<ul className={styles.list}>
+						{list.map((item) => (
+							<li key={item.id} className={styles['list-item']}>
+								{item.value}
+							</li>
+						))}
+					</ul>
 				</div>
 			</div>
 		</>
